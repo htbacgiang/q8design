@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createSlug } from '../../data/projects';
 import ImageUploader from './ImageUploader';
 import GalleryUploader from './GalleryUploader';
+import { toast } from 'react-toastify';
 
 export default function AddProjectForm({ onSuccess, editingProject = null }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,7 +33,6 @@ export default function AddProjectForm({ onSuccess, editingProject = null }) {
     model3D: '',
     featured: false,
     overview: '',
-    highlights: '',
     features: ''
   });
 
@@ -61,7 +61,6 @@ export default function AddProjectForm({ onSuccess, editingProject = null }) {
         model3D: editingProject.model3D || '',
         featured: editingProject.featured || false,
         overview: editingProject.overview || '',
-        highlights: editingProject.highlights ? editingProject.highlights.join('\n') : '',
         features: editingProject.features ? JSON.stringify(editingProject.features, null, 2) : ''
       });
     }
@@ -77,56 +76,107 @@ export default function AddProjectForm({ onSuccess, editingProject = null }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form submitted!');
+    console.log('isEditMode:', isEditMode);
+    console.log('formData:', formData);
     setIsSubmitting(true);
     setError('');
     setSuccess('');
 
     // Validate images
+    console.log('Image validation:', {
+      image: formData.image,
+      mainImage: formData.mainImage
+    });
+    
     if (!formData.image || !formData.mainImage) {
+      console.log('Image validation failed');
       setError('Vui lòng upload ảnh đại diện');
       setIsSubmitting(false);
       return;
     }
 
-    if (!formData.gallery || formData.gallery.length === 0) {
-      setError('Vui lòng upload ít nhất 1 ảnh vào gallery');
-      setIsSubmitting(false);
-      return;
-    }
+    // Gallery is optional for now
+    // if (!formData.gallery || formData.gallery.length === 0) {
+    //   setError('Vui lòng upload ít nhất 1 ảnh vào gallery');
+    //   setIsSubmitting(false);
+    //   return;
+    // }
 
     try {
       // Transform form data
+      // Validate required fields
+      const requiredFields = ['title', 'location', 'area', 'type', 'year', 'description'];
+      const missingFields = requiredFields.filter(field => {
+        const value = formData[field];
+        return !value || (typeof value === 'string' && value.trim() === '') || value === '';
+      });
+      
+      console.log('Required fields validation:', {
+        requiredFields,
+        missingFields,
+        formData: {
+          title: formData.title,
+          location: formData.location,
+          area: formData.area,
+          type: formData.type,
+          year: formData.year,
+          description: formData.description
+        }
+      });
+      
+      if (missingFields.length > 0) {
+        console.log('Required fields validation failed:', missingFields);
+        throw new Error(`Các trường bắt buộc chưa được điền: ${missingFields.join(', ')}`);
+      }
+
+      // Validate images
+      if (!formData.image || (typeof formData.image === 'string' && formData.image.trim() === '')) {
+        throw new Error('Vui lòng upload ảnh đại diện cho dự án');
+      }
+
+      // Ensure mainImage is set (use image if mainImage is empty)
+      const mainImage = formData.mainImage && (typeof formData.mainImage === 'string' && formData.mainImage.trim() !== '')
+        ? formData.mainImage.trim() 
+        : (typeof formData.image === 'string' ? formData.image.trim() : formData.image);
+
       const projectData = {
-        title: formData.title,
-        subtitle: formData.subtitle,
+        title: typeof formData.title === 'string' ? formData.title.trim() : formData.title,
+        subtitle: typeof formData.subtitle === 'string' ? formData.subtitle.trim() : formData.subtitle,
         category: formData.category,
-        location: formData.location,
-        area: formData.area,
-        type: formData.type,
-        year: formData.year,
-        client: formData.client,
-        style: formData.style,
-        budget: formData.budget,
-        duration: formData.duration,
+        location: typeof formData.location === 'string' ? formData.location.trim() : formData.location,
+        area: typeof formData.area === 'string' ? formData.area.trim() : formData.area,
+        type: typeof formData.type === 'string' ? formData.type.trim() : formData.type,
+        year: parseInt(formData.year),
+        client: typeof formData.client === 'string' ? formData.client.trim() : formData.client,
+        style: typeof formData.style === 'string' ? formData.style.trim() : formData.style,
+        budget: typeof formData.budget === 'string' ? formData.budget.trim() : formData.budget,
+        duration: typeof formData.duration === 'string' ? formData.duration.trim() : formData.duration,
         completion: formData.completion,
-        image: formData.image,
-        mainImage: formData.mainImage,
+        image: typeof formData.image === 'string' ? formData.image.trim() : formData.image,
+        mainImage: mainImage,
         gallery: Array.isArray(formData.gallery) ? formData.gallery : [],
-        description: formData.description,
-        tags: formData.tags ? formData.tags.split(',').map(s => s.trim()) : [],
+        description: typeof formData.description === 'string' ? formData.description.trim() : formData.description,
+        tags: formData.tags ? formData.tags.split(',').map(s => s.trim()).filter(s => s) : [],
         has3D: formData.has3D,
         model3D: formData.model3D || undefined,
         featured: formData.featured,
         slug: createSlug(formData.title),
-        overview: formData.overview,
-        highlights: formData.highlights ? formData.highlights.split('\n').filter(s => s.trim()) : [],
-        features: formData.features ? JSON.parse(formData.features) : []
+        overview: typeof formData.overview === 'string' ? formData.overview.trim() : formData.overview,
+        features: formData.features ? JSON.parse(formData.features) : [],
+        status: 'active'
       };
 
       // Add ID if editing
       if (isEditMode && editingProject) {
-        projectData.id = editingProject.id;
+        projectData.id = editingProject._id || editingProject.id;
+        projectData.slug = editingProject.slug;
+        console.log('Editing project:', editingProject);
+        console.log('Project ID:', projectData.id);
+        console.log('Project slug:', projectData.slug);
       }
+
+      console.log('Sending project data:', projectData);
 
       const url = isEditMode ? '/api/projects/update' : '/api/projects/add';
       const method = isEditMode ? 'PUT' : 'POST';
@@ -146,6 +196,7 @@ export default function AddProjectForm({ onSuccess, editingProject = null }) {
       }
 
       setSuccess(isEditMode ? 'Cập nhật dự án thành công!' : 'Thêm dự án thành công!');
+      toast.success(isEditMode ? 'Cập nhật dự án thành công!' : 'Thêm dự án thành công!');
       
       // Reset form only if adding (not editing)
       if (!isEditMode) {
@@ -171,7 +222,6 @@ export default function AddProjectForm({ onSuccess, editingProject = null }) {
         model3D: '',
         featured: false,
         overview: '',
-        highlights: '',
         features: ''
         });
       }
@@ -180,7 +230,9 @@ export default function AddProjectForm({ onSuccess, editingProject = null }) {
         onSuccess(data.project);
       }
     } catch (err) {
-      setError(err.message || 'Có lỗi xảy ra khi thêm dự án');
+      const errorMessage = err.message || 'Có lỗi xảy ra khi thêm dự án';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -446,20 +498,6 @@ export default function AddProjectForm({ onSuccess, editingProject = null }) {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Điểm nổi bật (mỗi dòng một điểm) <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              name="highlights"
-              value={formData.highlights}
-              onChange={handleChange}
-              required
-              rows="4"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Thiết kế tối ưu view biển 180 độ&#10;Không gian mở kết nối với thiên nhiên&#10;Hệ thống ánh sáng thông minh"
-            />
-          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

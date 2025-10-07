@@ -137,7 +137,7 @@ export default function ConstructionServicePage() {
     {
       name: "Văn phòng, Showroom",
       description: "Thi công không gian thương mại chuyên nghiệp",
-      image: "/images/service-interior-2.jpg"
+      image: "/images/service-interior-2.webp"
     }
   ];
 

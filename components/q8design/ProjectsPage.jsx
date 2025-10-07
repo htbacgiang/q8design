@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { 
@@ -12,17 +12,23 @@ import {
   FaCog,
   FaSearch
 } from "react-icons/fa";
-import { filterCategories, projects, createSlug, getProjectsByCategory, searchProjects } from "../../data/projects";
+import { useProjects } from "../../hooks/useProjects";
 
 export default function ProjectsPage() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const projectsPerPage = 3;
 
-  // Get projects data from shared data file
-  const allProjects = projects;
+  // Fetch projects from API
+  const { projects: allProjects, loading, error } = useProjects({
+    category: activeFilter,
+    search: searchTerm,
+    limit: 100 // Get more projects for filtering
+  });
 
-  const filteredProjects = getProjectsByCategory(activeFilter);
+  // Filter projects locally for pagination
+  const filteredProjects = allProjects || [];
 
   // Pagination logic
   const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
@@ -31,11 +37,51 @@ export default function ProjectsPage() {
   const paginatedProjects = filteredProjects.slice(startIndex, endIndex);
 
   // Reset to page 1 when filter changes
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentPage(1);
-  }, [activeFilter]);
+  }, [activeFilter, searchTerm]);
 
-  const featuredProjectsData = allProjects.filter(project => project.featured);
+  const featuredProjectsData = allProjects?.filter(project => project.featured) || [];
+
+  // Create filter categories from API data
+  const filterCategories = [
+    { id: "all", name: "Tất cả", count: allProjects?.length || 0, color: "gray" },
+    { id: "villa", name: "Biệt thự", count: allProjects?.filter(p => p.category === 'villa').length || 0, color: "blue" },
+    { id: "apartment", name: "Căn hộ", count: allProjects?.filter(p => p.category === 'apartment').length || 0, color: "green" },
+    { id: "townhouse", name: "Nhà phố", count: allProjects?.filter(p => p.category === 'townhouse').length || 0, color: "purple" },
+    { id: "commercial", name: "Thương mại", count: allProjects?.filter(p => p.category === 'commercial').length || 0, color: "orange" }
+  ];
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Đang tải dự án...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Lỗi tải dữ liệu</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -76,6 +122,21 @@ export default function ProjectsPage() {
 
           {/* Filter Bar */}
           <div className="bg-white rounded-2xl p-6 shadow-lg mb-12">
+            {/* Search Input */}
+            <div className="mb-6">
+              <div className="relative max-w-md mx-auto">
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm dự án..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            
+            {/* Category Filters */}
             <div className="flex flex-wrap gap-2 justify-center">
               {filterCategories.map((category) => (
                 <button
@@ -187,21 +248,37 @@ export default function ProjectsPage() {
           </div>
 
           {/* No Results */}
-          {filteredProjects.length === 0 && (
+          {filteredProjects.length === 0 && !loading && (
             <div className="text-center py-16">
               <div className="text-gray-400 text-6xl mb-4">
                 <FaSearch />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">Không tìm thấy dự án</h3>
               <p className="text-gray-600 mb-6">
-                Không có dự án nào phù hợp với từ khóa hoặc bộ lọc bạn đã chọn.
+                {searchTerm 
+                  ? `Không có dự án nào phù hợp với từ khóa "${searchTerm}"`
+                  : `Không có dự án nào trong danh mục "${filterCategories.find(cat => cat.id === activeFilter)?.name}"`
+                }
               </p>
-              <button
-                onClick={() => setActiveFilter("all")}
-                className="inline-flex items-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-full transition-colors"
-              >
-                Xem tất cả dự án
-              </button>
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => {
+                    setActiveFilter("all");
+                    setSearchTerm("");
+                  }}
+                  className="inline-flex items-center px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-full transition-colors"
+                >
+                  Xem tất cả dự án
+                </button>
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="inline-flex items-center px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-full transition-colors"
+                  >
+                    Xóa tìm kiếm
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>

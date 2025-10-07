@@ -1,18 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowRight, FaPlay, FaCube } from "react-icons/fa";
-import { filterCategories, getFeaturedProjects, createSlug } from "../../data/projects";
 
 export default function ProjectsSection() {
   const [activeFilter, setActiveFilter] = useState("all");
-  const featuredProjects = getFeaturedProjects();
+  const [projects, setProjects] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch projects from API
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/projects?featured=true&limit=6');
+        const data = await response.json();
+        
+        if (data.success) {
+          setProjects(data.data.projects);
+          setCategories(data.data.categories || []);
+        } else {
+          setError(data.message || 'Failed to fetch projects');
+        }
+      } catch (err) {
+        setError('Network error or server is unreachable.');
+        console.error('Error fetching projects:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const filteredProjects = activeFilter === "all" 
-    ? featuredProjects 
-    : featuredProjects.filter(project => project.category === activeFilter);
-
-  const featuredProjectsOnly = featuredProjects.filter(project => project.featured);
+    ? projects 
+    : projects.filter(project => project.category === activeFilter);
 
   return (
     <section className="py-10 bg-gray-50">
@@ -33,27 +58,68 @@ export default function ProjectsSection() {
 
         {/* Filter Categories */}
         <div className="flex flex-wrap justify-center gap-2 mb-12">
-          {filterCategories.map((category) => (
+          <button
+            onClick={() => setActiveFilter("all")}
+            className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
+              activeFilter === "all"
+                ? "bg-orange-500 text-white shadow-lg transform scale-105"
+                : "bg-white text-gray-600 hover:bg-orange-50 hover:text-orange-600 border border-gray-200"
+            }`}
+          >
+            Tất cả
+            <span className="ml-2 text-sm">({projects.length})</span>
+          </button>
+          {categories.map((category) => (
             <button
-              key={category.id}
-              onClick={() => setActiveFilter(category.id)}
+              key={category._id}
+              onClick={() => setActiveFilter(category._id)}
               className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
-                activeFilter === category.id
+                activeFilter === category._id
                   ? "bg-orange-500 text-white shadow-lg transform scale-105"
                   : "bg-white text-gray-600 hover:bg-orange-50 hover:text-orange-600 border border-gray-200"
               }`}
             >
-              {category.name}
+              {category._id === 'villa' ? 'Biệt thự' :
+               category._id === 'apartment' ? 'Căn hộ' :
+               category._id === 'townhouse' ? 'Nhà phố' :
+               category._id === 'commercial' ? 'Thương mại' :
+               category._id === 'office' ? 'Văn phòng' :
+               category._id === 'resort' ? 'Resort' :
+               category._id === 'restaurant' ? 'Nhà hàng' :
+               category._id === 'cafe' ? 'Cafe' :
+               category._id === 'showroom' ? 'Showroom' : category._id}
               <span className="ml-2 text-sm">({category.count})</span>
             </button>
           ))}
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+            <p className="mt-4 text-gray-600">Đang tải dự án...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12">
+            <p className="text-red-600 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+            >
+              Thử lại
+            </button>
+          </div>
+        )}
+
         {/* Featured Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {filteredProjects.slice(0, 6).map((project, index) => (
+        {!loading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {filteredProjects.slice(0, 6).map((project, index) => (
             <div 
-              key={project.id}
+              key={project._id || project.id}
               className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
             >
               {/* Project Image */}
@@ -126,8 +192,21 @@ export default function ProjectsSection() {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
 
+        {/* No Projects State */}
+        {!loading && !error && filteredProjects.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-600 mb-4">Không có dự án nào được tìm thấy.</p>
+            <Link 
+              href="/du-an"
+              className="inline-flex items-center px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+            >
+              Xem tất cả dự án
+            </Link>
+          </div>
+        )}
 
         {/* Bottom CTA */}
         <div className="text-center">

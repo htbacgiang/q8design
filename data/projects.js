@@ -1,7 +1,7 @@
 // Q8 Design Projects Data
 // Centralized data for all projects used across ProjectsSection, ProjectsPage, and ProjectDetailPage
 
-export const projects = [
+const projects = [
   {
     id: 1,
     title: "Dự án Biệt thự FLC Sầm Sơn",
@@ -37,12 +37,6 @@ export const projects = [
     featured: true,
     slug: "biet-thu-flc-sam-son",
     overview: "Dự án biệt thự FLC Sầm Sơn là một công trình nghỉ dưỡng cao cấp, được thiết kế với phong cách hiện đại tối giản, tập trung vào việc tận dụng tối đa view biển tuyệt đẹp và ánh sáng tự nhiên.",
-    highlights: [
-      "Thiết kế tối ưu view biển 180 độ",
-      "Không gian mở kết nối với thiên nhiên",
-      "Hệ thống ánh sáng thông minh",
-      "Vật liệu cao cấp bền vững với môi trường biển"
-    ],
     features: [
       {
         icon: "🏖️",
@@ -80,8 +74,8 @@ export const projects = [
     budget: "1.8 - 2.2 tỷ VNĐ",
     duration: "4 tháng",
     completion: "Hoàn thành",
-    image: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759747379/q8desgin/bfwn4vi8kfobgdzx5bhw.png",
-    mainImage: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759747379/q8desgin/bfwn4vi8kfobgdzx5bhw.png",
+    image: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729126/q8desgin/eazz9o2tozqdm5gwvmrk.jpg",
+    mainImage: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729126/q8desgin/eazz9o2tozqdm5gwvmrk.jpg",
     gallery: [
       "https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=200&h=200&fit=crop",
       "https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=200&h=200&fit=crop",
@@ -99,12 +93,6 @@ export const projects = [
     featured: true,
     slug: "can-ho-penthouse-the-k-park",
     overview: "Căn hộ penthouse tại The K-Park được thiết kế theo phong cách hiện đại tối giản, tập trung vào việc tối ưu hóa không gian sống và tạo ra một môi trường sống sang trọng, tiện nghi.",
-    highlights: [
-      "Thiết kế mở tạo cảm giác rộng rãi",
-      "Hệ thống tủ âm tường tiết kiệm không gian",
-      "Màu sắc trung tính tạo sự thanh lịch",
-      "Nội thất cao cấp được chọn lọc kỹ lưỡng"
-    ],
     features: [
       {
         icon: "🏢",
@@ -142,22 +130,14 @@ export const projects = [
     budget: "800 triệu - 1 tỷ VNĐ",
     duration: "4 tháng",
     completion: "Hoàn thành",
-    image: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759469165/q8desgin/pqqjsqpmqm87aorfnhai.jpg",
-    mainImage: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759469165/q8desgin/pqqjsqpmqm87aorfnhai.jpg",
+    image: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729127/q8desgin/wgscklpcz4zkzxsvlyyv.jpg",
+    mainImage: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729127/q8desgin/wgscklpcz4zkzxsvlyyv.jpg",
     gallery: [
       "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729121/q8desgin/edjry4lxpskes36hfviu.jpg",
       "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729123/q8desgin/swk8aeej2re9mwknesqj.jpg",
       "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729124/q8desgin/rig6wecpudfoxsjiqgkr.jpg",
       "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729126/q8desgin/eazz9o2tozqdm5gwvmrk.jpg",
-      "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729127/q8desgin/wgscklpcz4zkzxsvlyyv.jpg",
-      "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729463/q8desgin/vo4i1lurmx2dxm3xxnsa.jpg",
-      "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759747322/q8desgin/urzoqwuykvnw5zq7uj6e.png",
-      "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759747323/q8desgin/z5u0ssx3emijc8idherm.png",
-      "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759747324/q8desgin/jesvhttt4r73dsi13oti.png",
-      "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759747326/q8desgin/kvqqhiiu6fpk8ewqgwai.png",
-      "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759747327/q8desgin/hggojvivjvwfhr5mypzp.png",
-      "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759747329/q8desgin/pej6yka5t3d8knnod3w9.png",
-      "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759747330/q8desgin/vqtoa7ag9h1cc5ko3q4s.png"
+      "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729127/q8desgin/wgscklpcz4zkzxsvlyyv.jpg"
     ],
     description: "Cải tạo nhà phố liền kề với thiết kế thông minh, tối ưu hóa từng m² để tạo không gian sống tiện nghi.",
     tags: [
@@ -167,14 +147,8 @@ export const projects = [
     ],
     has3D: false,
     featured: true,
-    slug: "nha-pho-lien-ke-times-city",
+    slug: "nha-pho-lin-k-times-city",
     overview: "Dự án cải tạo nhà phố liền kề tại Times City tập trung vào việc tối ưu hóa không gian sống cho gia đình trẻ, tạo ra một môi trường sống hiện đại nhưng vẫn giữ được sự ấm cúng.",
-    highlights: [
-      "Cải tạo layout tối ưu công năng sử dụng",
-      "Tăng diện tích sử dụng 30% so với ban đầu",
-      "Hệ thống lưu trữ thông minh",
-      "Ánh sáng tự nhiên được tối ưu hóa"
-    ],
     features: [
       {
         icon: "🏡",
@@ -212,8 +186,8 @@ export const projects = [
     budget: "2.8 - 3.2 tỷ VNĐ",
     duration: "5 tháng",
     completion: "Đang thi công",
-    image: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729463/q8desgin/vo4i1lurmx2dxm3xxnsa.jpg",
-    mainImage: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729463/q8desgin/vo4i1lurmx2dxm3xxnsa.jpg",
+    image: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729123/q8desgin/swk8aeej2re9mwknesqj.jpg",
+    mainImage: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759729123/q8desgin/swk8aeej2re9mwknesqj.jpg",
     gallery: [
       "/images/q8design/project-villa-2.jpg",
       "/images/q8design/project-villa-3.jpg"
@@ -228,12 +202,6 @@ export const projects = [
     featured: true,
     slug: "biet-thu-vinhomes-riverside",
     overview: "Biệt thự Vinhomes Riverside được thiết kế theo phong cách tân cổ điển, kết hợp hài hòa giữa nét đẹp truyền thống và sự tiện nghi hiện đại, tạo nên một không gian sống đẳng cấp.",
-    highlights: [
-      "Phong cách tân cổ điển tinh tế",
-      "Vật liệu cao cấp nhập khẩu",
-      "View sông Hồng thơ mộng",
-      "Không gian mở kết nối với sân vườn"
-    ],
     features: [
       {
         icon: "🏛️",
@@ -260,44 +228,47 @@ export const projects = [
 ];
 
 // Utility functions
-export const createSlug = (title) => {
+const createSlug = (title) => {
+  if (!title) return '';
+  
   return title
     .toLowerCase()
-    .replace(/dự án /g, '')
-    .replace(/biệt thự /g, 'biet-thu-')
-    .replace(/căn hộ /g, 'can-ho-')
-    .replace(/nhà phố /g, 'nha-pho-')
-    .replace(/penthouse /g, 'penthouse-')
-    .replace(/times city/g, 'times-city')
-    .replace(/the k-park/g, 'the-k-park')
-    .replace(/flc sầm sơn/g, 'flc-sam-son')
-    .replace(/vinhomes/g, 'vinhomes')
-    .replace(/landmark/g, 'landmark')
-    .replace(/riverside/g, 'riverside')
+    // Chuyển đổi ký tự tiếng Việt thành không dấu
+    .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
+    .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
+    .replace(/[ìíịỉĩ]/g, 'i')
+    .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
+    .replace(/[ùúụủũưừứựửữ]/g, 'u')
+    .replace(/[ỳýỵỷỹ]/g, 'y')
+    .replace(/đ/g, 'd')
+    // Loại bỏ ký tự đặc biệt, chỉ giữ chữ cái, số, khoảng trắng và dấu gạch ngang
+    .replace(/[^a-z0-9\s-]/g, '')
+    // Thay thế khoảng trắng bằng dấu gạch ngang
     .replace(/\s+/g, '-')
-    .replace(/[^\w\-]/g, '')
+    // Loại bỏ dấu gạch ngang trùng lặp
     .replace(/-+/g, '-')
-    .trim();
+    // Loại bỏ dấu gạch ngang ở đầu và cuối
+    .replace(/^-|-$/g, '');
 };
 
-export const getProjectById = (id) => {
+const getProjectById = (id) => {
   return projects.find(project => project.id === parseInt(id));
 };
 
-export const getProjectBySlug = (slug) => {
+const getProjectBySlug = (slug) => {
   return projects.find(project => project.slug === slug);
 };
 
-export const getProjectsByCategory = (category) => {
+const getProjectsByCategory = (category) => {
   if (category === 'all') return projects;
   return projects.filter(project => project.category === category);
 };
 
-export const getFeaturedProjects = () => {
+const getFeaturedProjects = () => {
   return projects.filter(project => project.featured);
 };
 
-export const searchProjects = (searchTerm) => {
+const searchProjects = (searchTerm) => {
   const term = searchTerm.toLowerCase();
   return projects.filter(project => 
     project.title.toLowerCase().includes(term) ||
@@ -316,7 +287,7 @@ const getProjectCountByCategory = (categoryId) => {
 };
 
 // Dynamic filter categories with real counts
-export const filterCategories = [
+const filterCategories = [
   { id: "all", name: "Tất cả", count: 0, color: "gray" },
   { id: "villa", name: "Biệt thự", count: 0, color: "blue" },
   { id: "apartment", name: "Căn hộ", count: 0, color: "green" },
@@ -326,3 +297,15 @@ export const filterCategories = [
   ...category,
   count: getProjectCountByCategory(category.id)
 }));
+
+// Export for CommonJS
+module.exports = {
+  projects,
+  createSlug,
+  getProjectById,
+  getProjectBySlug,
+  getProjectsByCategory,
+  getFeaturedProjects,
+  searchProjects,
+  filterCategories
+};

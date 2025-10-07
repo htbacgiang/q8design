@@ -18,7 +18,8 @@
     "email-test-app-only": "node scripts/test-app-password-only.js",
     "test-sitemap": "node test-sitemap.js",
     "test-sitemap-simple": "node test-sitemap-simple.js",
-    "test-all-sitemaps": "node test-all-sitemaps.js"
+    "test-all-sitemaps": "node test-all-sitemaps.js",
+    "import-projects": "node scripts/import-projects.js"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",

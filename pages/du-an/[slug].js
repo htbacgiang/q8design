@@ -2,14 +2,13 @@ import Head from "next/head";
 import DefaultLayout from "../../components/layout/DefaultLayout";
 import ProjectDetailPage from "../../components/q8design/ProjectDetailPage";
 import { useRouter } from "next/router";
-import { getProjectBySlug, projects } from "../../data/projects";
 
 export default function ProjectDetail({ meta, project }) {
   const router = useRouter();
   const { slug } = router.query;
 
-  // Get project data for JSON-LD
-  const projectData = getProjectBySlug(slug);
+  // Use project data from props (fetched from API)
+  const projectData = project;
   
   // JSON-LD Schema.org cho chi tiết dự án
   const jsonLd = {
@@ -109,7 +108,7 @@ export default function ProjectDetail({ meta, project }) {
         {project?.title || `Dự án ${slug} - Q8 Design`}
       </h1>
       
-      <ProjectDetailPage projectSlug={slug} />
+      <ProjectDetailPage project={project} />
     </DefaultLayout>
   );
 }
@@ -117,15 +116,26 @@ export default function ProjectDetail({ meta, project }) {
 export async function getServerSideProps({ params }) {
   const { slug } = params;
   
-  // Get project data from shared data file
-  const project = getProjectBySlug(slug);
-  
-  // If project not found, return 404
-  if (!project) {
-    return {
-      notFound: true,
-    };
-  }
+  try {
+    // Fetch project from API
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/projects/${slug}`);
+    
+    if (!response.ok) {
+      return {
+        notFound: true,
+      };
+    }
+    
+    const data = await response.json();
+    const project = data.data?.project;
+    const relatedProjects = data.data?.relatedProjects || [];
+    
+    if (!project) {
+      return {
+        notFound: true,
+      };
+    }
 
   const meta = {
     title: `${project.title} - Q8 Design`,
@@ -154,7 +164,17 @@ export async function getServerSideProps({ params }) {
   return {
     props: {
       meta,
-      project,
+      project: {
+        ...project,
+        relatedProjects
+      },
     },
   };
+
+  } catch (error) {
+    console.error('Error fetching project:', error);
+    return {
+      notFound: true,
+    };
+  }
 }

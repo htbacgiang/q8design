@@ -144,13 +144,13 @@ export default function RenovationServicePage() {
     {
       name: "Căn hộ chung cư 80m²",
       before: "/images/service-interior.jpg",
-      after: "/images/service-interior-2.jpg",
+      after: "/images/service-interior-2.webp",
       description: "Mở rộng không gian, tối ưu công năng sử dụng"
     },
     {
       name: "Quán cà phê vintage",
       before: "/images/service-construction.jpg",
-      after: "/images/service-interior-2.jpg",
+      after: "/images/service-interior-2.webp",
       description: "Cải tạo thành concept mới thu hút giới trẻ"
     }
   ];

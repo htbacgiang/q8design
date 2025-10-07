@@ -1,70 +1,60 @@
-import fs from 'fs';
-import path from 'path';
+import db from '../../../utils/db';
+import Project from '../../../models/Project';
 
 export default async function handler(req, res) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'DELETE') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ 
+      success: false,
+      message: 'Method not allowed' 
+    });
   }
 
   try {
+    await db.connectDb();
+    
     const { id } = req.query;
     
     if (!id) {
-      return res.status(400).json({ error: 'Project ID is required' });
-    }
-
-    const projectId = parseInt(id);
-
-    // Read current projects file
-    const projectsFilePath = path.join(process.cwd(), 'data', 'projects.js');
-    const fileContent = fs.readFileSync(projectsFilePath, 'utf8');
-
-    // Extract the projects array
-    const projectsArrayMatch = fileContent.match(/export const projects = (\[[\s\S]*?\]);/);
-    if (!projectsArrayMatch) {
-      throw new Error('Could not parse projects array');
-    }
-
-    // Parse existing projects
-    const projectsString = projectsArrayMatch[1];
-    const projects = eval(projectsString);
-
-    // Filter out the project to delete
-    const updatedProjects = projects.filter(p => p.id !== projectId);
-
-    if (updatedProjects.length === projects.length) {
-      return res.status(404).json({ error: 'Project not found' });
-    }
-
-    // Generate the new file content
-    const newProjectsString = JSON.stringify(updatedProjects, null, 2)
-      .replace(/"([^"]+)":/g, '$1:')  // Remove quotes from keys
-      .replace(/: "([^"]*?)"/g, (match, value) => {
-        // Keep quotes only for string values, not numbers or booleans
-        if (value === 'true' || value === 'false' || !isNaN(value)) {
-          return `: ${value}`;
-        }
-        return match;
+      return res.status(400).json({ 
+        success: false,
+        message: 'Project ID is required' 
       });
+    }
 
-    const newFileContent = fileContent.replace(
-      /export const projects = \[[\s\S]*?\];/,
-      `export const projects = ${newProjectsString};`
-    );
+    console.log('Attempting to delete project with ID:', id);
 
-    // Write back to file
-    fs.writeFileSync(projectsFilePath, newFileContent, 'utf8');
+    const project = await Project.findByIdAndDelete(id);
+
+    if (!project) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Project not found' 
+      });
+    }
+
+    console.log('Project deleted successfully:', project.title);
 
     return res.status(200).json({ 
       success: true, 
-      message: 'Project deleted successfully'
+      message: 'Project deleted successfully',
+      data: project
     });
 
   } catch (error) {
     console.error('Error deleting project:', error);
     return res.status(500).json({ 
-      error: 'Failed to delete project',
-      details: error.message 
+      success: false,
+      message: 'Failed to delete project',
+      error: error.message 
     });
   }
 }

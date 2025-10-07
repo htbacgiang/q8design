@@ -1,30 +1,89 @@
-import { useState } from 'react';
-import { projects as initialProjects } from '../../data/projects';
+import { useState, useEffect } from 'react';
 import AddProjectForm from '../../components/q8design/AddProjectForm';
 import ProjectsListDashboard from '../../components/q8design/ProjectsListDashboard';
 import AdminLayout from '../../components/layout/AdminLayout';
+import { toast } from 'react-toastify';
 
 export default function Q8ProjectsDashboard() {
   const [activeTab, setActiveTab] = useState('list');
-  const [projects, setProjects] = useState(initialProjects);
+  const [projects, setProjects] = useState([]);
   const [editingProject, setEditingProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleProjectAdded = (projectData) => {
-    if (editingProject) {
-      // Update existing project
-      setProjects(projects.map(p => 
-        p.id === editingProject.id ? { ...p, ...projectData } : p
-      ));
-    } else {
-      // Add new project
-      setProjects([...projects, projectData]);
+  // Fetch projects from API
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/projects');
+        const data = await response.json();
+        
+        if (data.success) {
+          setProjects(data.data.projects);
+        } else {
+          setError(data.message || 'Lỗi khi tải dữ liệu');
+        }
+      } catch (err) {
+        setError('Lỗi kết nối mạng');
+        console.error('Error fetching projects:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  const handleProjectAdded = async (projectData) => {
+    try {
+      if (editingProject) {
+        // Update existing project via API
+        const response = await fetch(`/api/projects/${editingProject.slug}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(projectData),
+        });
+        
+        if (response.ok) {
+          // Refresh projects list
+          const fetchResponse = await fetch('/api/projects');
+          const data = await fetchResponse.json();
+          if (data.success) {
+            setProjects(data.data.projects);
+          }
+        }
+      } else {
+        // Add new project via API
+        const response = await fetch('/api/projects', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(projectData),
+        });
+        
+        if (response.ok) {
+          // Refresh projects list
+          const fetchResponse = await fetch('/api/projects');
+          const data = await fetchResponse.json();
+          if (data.success) {
+            setProjects(data.data.projects);
+          }
+        }
+      }
+      
+      // Clear editing state and switch to list view
+      setTimeout(() => {
+        setEditingProject(null);
+        setActiveTab('list');
+      }, 2000);
+    } catch (error) {
+      console.error('Error saving project:', error);
+      setError('Lỗi khi lưu dự án');
     }
-    
-    // Clear editing state and switch to list view
-    setTimeout(() => {
-      setEditingProject(null);
-      setActiveTab('list');
-    }, 2000);
   };
 
   const handleEdit = (project) => {
@@ -32,8 +91,47 @@ export default function Q8ProjectsDashboard() {
     setActiveTab('add');
   };
 
-  const handleDelete = (id) => {
-    setProjects(projects.filter(p => p.id !== id));
+  const handleDelete = async (project) => {
+    try {
+      console.log('Deleting project:', project);
+      
+      const response = await fetch(`/api/projects/delete?id=${project._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('Delete response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Delete response error:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('Delete result:', result);
+      
+      if (result.success) {
+        toast.success('Xóa dự án thành công!');
+        // Refresh projects list
+        const fetchResponse = await fetch('/api/projects');
+        const data = await fetchResponse.json();
+        if (data.success) {
+          setProjects(data.data.projects);
+        }
+      } else {
+        const errorMessage = result.message || 'Lỗi khi xóa dự án';
+        setError(errorMessage);
+        toast.error(errorMessage);
+      }
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      const errorMessage = 'Lỗi khi xóa dự án: ' + error.message;
+      setError(errorMessage);
+      toast.error(errorMessage);
+    }
   };
 
   return (
@@ -109,22 +207,85 @@ export default function Q8ProjectsDashboard() {
 
         {/* Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {activeTab === 'list' && (
-            <ProjectsListDashboard 
-              projects={projects} 
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+          {loading && (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600">Đang tải dữ liệu...</span>
+            </div>
           )}
           
-          {activeTab === 'add' && (
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div className="flex">
+                <div className="text-red-600">
+                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">Lỗi</h3>
+                  <div className="mt-2 text-sm text-red-700">{error}</div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {!loading && !error && activeTab === 'list' && (
+            <>
+              {projects.length === 0 ? (
+                <div className="bg-white shadow-lg rounded-lg p-8 text-center">
+                  <div className="text-gray-500 mb-4">
+                    <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Chưa có dự án nào</h3>
+                  <p className="text-gray-500 mb-4">
+                    Database chưa có dữ liệu dự án. Hãy thêm dự án đầu tiên hoặc import dữ liệu mẫu!
+                  </p>
+                  <div className="flex gap-4 justify-center">
+                    <button
+                      onClick={() => setActiveTab('add')}
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      ➕ Thêm dự án đầu tiên
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Trigger import script
+                        fetch('/api/projects/import', { method: 'POST' })
+                          .then(() => {
+                            alert('Import dữ liệu mẫu thành công!');
+                            window.location.reload();
+                          })
+                          .catch(() => {
+                            alert('Lỗi khi import dữ liệu mẫu');
+                          });
+                      }}
+                      className="inline-flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      📥 Import dữ liệu mẫu
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <ProjectsListDashboard 
+                  projects={projects} 
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              )}
+            </>
+          )}
+          
+          {!loading && !error && activeTab === 'add' && (
             <AddProjectForm 
               onSuccess={handleProjectAdded} 
               editingProject={editingProject}
             />
           )}
           
-          {activeTab === 'stats' && (
+          {!loading && !error && activeTab === 'stats' && (
             <div className="bg-white shadow-lg rounded-lg p-6">
               <h2 className="text-2xl font-bold mb-6 text-gray-800">Thống kê dự án</h2>
               

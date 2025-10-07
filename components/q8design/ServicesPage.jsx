@@ -18,7 +18,7 @@ export default function ServicesPage() {
       icon: FaRulerCombined,
       title: "Thiết kế Kiến trúc",
       description: "Chúng tôi kiến tạo những công trình kiến trúc độc đáo và bền vững. Từ nhà phố, biệt thự đến các công trình thương mại, Q8 Design mang đến giải pháp kiến trúc hiện đại, phù hợp với phong cách sống Việt Nam.",
-      image: "/images/service-architecture.jpg",
+      image: "/images/service-architecture.webp",
       services: [
         "Thiết kế kiến trúc nhà phố", 
         "Thiết kế kiến trúc biệt thự",
@@ -34,7 +34,7 @@ export default function ServicesPage() {
       icon: FaCouch,
       title: "Thiết kế Nội thất",
       description: "Biến không gian sống của bạn thành tác phẩm nghệ thuật với sự sáng tạo và tinh tế. Q8 Design chuyên thiết kế nội thất cao cấp, tối ưu công năng và thể hiện cá tính riêng của gia chủ.",
-      image: "/images/service-interior-2.jpg",
+      image: "/images/service-interior-2.webp",
       services: [
         "Thiết kế nội thất nhà phố",
         "Thiết kế nội thất chung cư", 
@@ -49,7 +49,7 @@ export default function ServicesPage() {
       icon: FaHammer,
       title: "Thi công trọn gói", 
       description: "Đảm bảo công trình được hoàn thiện đúng tiến độ, chất lượng và thẩm mỹ theo thiết kế. Chúng tôi quản lý và giám sát chặt chẽ mọi công đoạn, từ xây dựng phần thô đến hoàn thiện nội thất, để bạn hoàn toàn an tâm.",
-      image: "/images/service-construction.jpg",
+      image: "/images/service-construction.webp",
       services: [
         "Thi công trọn gói từ A-Z",
         "Thi công phần thô", 
@@ -65,7 +65,7 @@ export default function ServicesPage() {
       icon: FaHome,
       title: "Cải tạo không gian",
       description: "Nâng cấp và làm mới không gian cũ của bạn, tối ưu công năng và mang lại phong cách sống mới. Dịch vụ cải tạo của chúng tôi phù hợp với cả nhà ở và các công trình thương mại.",
-      image: "/images/service-renovation.jpg", 
+      image: "/images/service-renovation.webp", 
       services: [
         "Cải tạo nhà phố",
         "Cải tạo chung cư",
@@ -288,13 +288,14 @@ export default function ServicesPage() {
 
                   {/* Content */}
                   <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
-                    <div className={`w-16 h-16 ${colorClass.split(' ')[2]} rounded-2xl flex items-center justify-center mb-6`}>
-                      <Icon className={`text-2xl ${colorClass.split(' ')[1]}`} />
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className={`w-12 h-12 ${colorClass.split(' ')[2]} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                        <Icon className={`text-xl ${colorClass.split(' ')[1]}`} />
+                      </div>
+                      <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
+                        {service.title}
+                      </h3>
                     </div>
-                    
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                      {service.title}
-                    </h3>
                     
                     <p className="text-gray-600 leading-relaxed mb-6">
                       {service.description}

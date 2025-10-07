@@ -1,71 +1,55 @@
-import fs from 'fs';
-import path from 'path';
+import db from '../../../utils/db';
+import Project from '../../../models/Project';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ 
+      success: false,
+      message: 'Method not allowed' 
+    });
   }
 
   try {
-    const newProject = req.body;
+    await db.connectDb();
 
-    // Read current projects file
-    const projectsFilePath = path.join(process.cwd(), 'data', 'projects.js');
-    const fileContent = fs.readFileSync(projectsFilePath, 'utf8');
+    console.log('Received project data:', req.body);
+    console.log('Required fields check:');
+    console.log('- title:', req.body.title);
+    console.log('- location:', req.body.location);
+    console.log('- area:', req.body.area);
+    console.log('- type:', req.body.type);
+    console.log('- year:', req.body.year);
+    console.log('- description:', req.body.description);
+    console.log('- image:', req.body.image);
+    console.log('- mainImage:', req.body.mainImage);
+    console.log('- slug:', req.body.slug);
 
-    // Extract the projects array
-    const projectsArrayMatch = fileContent.match(/export const projects = (\[[\s\S]*?\]);/);
-    if (!projectsArrayMatch) {
-      throw new Error('Could not parse projects array');
+    // Validate required fields (status has default value in model)
+    const requiredFields = ['title', 'location', 'area', 'type', 'year', 'description', 'image', 'mainImage', 'slug'];
+    const missingFields = requiredFields.filter(field => !req.body[field] || req.body[field].toString().trim() === '');
+    
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Missing required fields: ${missingFields.join(', ')}`,
+        missingFields
+      });
     }
 
-    // Parse existing projects
-    const projectsString = projectsArrayMatch[1];
-    const projects = eval(projectsString);
-
-    // Generate new ID
-    const maxId = Math.max(...projects.map(p => p.id), 0);
-    const newId = maxId + 1;
-
-    // Add ID to new project
-    const projectToAdd = {
-      id: newId,
-      ...newProject
-    };
-
-    // Add new project to array
-    projects.push(projectToAdd);
-
-    // Generate the new file content
-    const newProjectsString = JSON.stringify(projects, null, 2)
-      .replace(/"([^"]+)":/g, '$1:')  // Remove quotes from keys
-      .replace(/: "([^"]*?)"/g, (match, value) => {
-        // Keep quotes only for string values, not numbers or booleans
-        if (value === 'true' || value === 'false' || !isNaN(value)) {
-          return `: ${value}`;
-        }
-        return match;
-      });
-
-    const newFileContent = fileContent.replace(
-      /export const projects = \[[\s\S]*?\];/,
-      `export const projects = ${newProjectsString};`
-    );
-
-    // Write back to file
-    fs.writeFileSync(projectsFilePath, newFileContent, 'utf8');
-
-    return res.status(200).json({ 
-      success: true, 
-      message: 'Project added successfully',
-      project: projectToAdd
+    const project = new Project(req.body);
+    await project.save();
+    
+    res.status(201).json({
+      success: true,
+      data: project,
+      message: 'Dự án đã được tạo thành công'
     });
-
   } catch (error) {
-    console.error('Error adding project:', error);
-    return res.status(500).json({ 
-      error: 'Failed to add project',
-      details: error.message 
+    console.error('Error creating project:', error);
+    res.status(400).json({
+      success: false,
+      message: 'Lỗi khi tạo dự án',
+      error: error.message
     });
   }
 }

@@ -76,14 +76,7 @@ export default function AboutPage() {
       image: "/images/hoang-quoc-huu.jpg",
       description: "Chuyên gia hàng đầu về thiết kế kiến trúc và nội thất, tốt nghiệp loại xuất sắc Đại học Kiến trúc Hà Nội."
     },
-    {
-      name: "KTS. Lê Lan Anh", 
-      position: "Trưởng phòng Nội thất",
-      experience: "12 năm kinh nghiệm",
-      education: "Cử nhân Thiết kế Nội thất - Đại học Mỹ thuật Công nghiệp (2012)",
-      image: "/images/q8design/team-2.jpg",
-      description: "Chuyên sâu về thiết kế nội thất cao cấp, từng tham gia nhiều dự án biệt thự và penthouse."
-    },
+
     {
       name: "Kỹ sư Trần Đức Thắng",
       position: "Giám đốc Thi công", 
@@ -91,6 +84,14 @@ export default function AboutPage() {
       education: "Kỹ sư Xây dựng - Đại học Xây dựng Hà Nội (2006)",
       image: "/images/q8design/team-3.jpg",
       description: "Giám sát và quản lý thi công hơn 300 dự án, đảm bảo chất lượng và tiến độ theo cam kết."
+    },
+    {
+      name: "KTS. Lê Lan Anh", 
+      position: "Trưởng phòng Nội thất",
+      experience: "12 năm kinh nghiệm",
+      education: "Cử nhân Thiết kế Nội thất - Đại học Mỹ thuật Công nghiệp (2012)",
+      image: "/images/tam.jpg",
+      description: "Chuyên sâu về thiết kế nội thất cao cấp, từng tham gia nhiều dự án biệt thự và penthouse."
     },
     {
       name: "Ngô Quang Trường",
@@ -118,7 +119,7 @@ export default function AboutPage() {
       <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/doi-ngu-q8.webp"
+            src="/images/doi-ngu-thiet-ke-noi-that-q8design.webp"
             alt="Q8 Design Office"
             fill
             className="object-cover brightness-50"
@@ -322,7 +323,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="relative">
               <Image
-                src="/images/service-renovation.jpg"
+                src="/images/q8-desgin.webp"
                 alt="Q8 Design Office"
                 width={600}
                 height={400}

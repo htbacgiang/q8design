@@ -1,75 +1,60 @@
-import fs from 'fs';
-import path from 'path';
+import db from '../../../utils/db';
+import Project from '../../../models/Project';
 
 export default async function handler(req, res) {
   if (req.method !== 'PUT') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ 
+      success: false,
+      message: 'Method not allowed' 
+    });
   }
 
   try {
-    const updatedProject = req.body;
+    await db.connectDb();
 
-    if (!updatedProject.id) {
-      return res.status(400).json({ error: 'Project ID is required' });
-    }
-
-    // Read current projects file
-    const projectsFilePath = path.join(process.cwd(), 'data', 'projects.js');
-    const fileContent = fs.readFileSync(projectsFilePath, 'utf8');
-
-    // Extract the projects array
-    const projectsArrayMatch = fileContent.match(/export const projects = (\[[\s\S]*?\]);/);
-    if (!projectsArrayMatch) {
-      throw new Error('Could not parse projects array');
-    }
-
-    // Parse existing projects
-    const projectsString = projectsArrayMatch[1];
-    const projects = eval(projectsString);
-
-    // Find and update the project
-    const projectIndex = projects.findIndex(p => p.id === updatedProject.id);
+    const { id, slug } = req.body;
     
-    if (projectIndex === -1) {
-      return res.status(404).json({ error: 'Project not found' });
+    console.log('Updating project with ID:', id, 'Slug:', slug);
+    console.log('Update data:', req.body);
+
+    // Find project by ID or slug
+    let project;
+    if (id) {
+      project = await Project.findById(id);
+    } else if (slug) {
+      project = await Project.findOne({ slug });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing project ID or slug'
+      });
     }
 
-    projects[projectIndex] = {
-      ...projects[projectIndex],
-      ...updatedProject
-    };
-
-    // Generate the new file content
-    const newProjectsString = JSON.stringify(projects, null, 2)
-      .replace(/"([^"]+)":/g, '$1:')  // Remove quotes from keys
-      .replace(/: "([^"]*?)"/g, (match, value) => {
-        // Keep quotes only for string values, not numbers or booleans
-        if (value === 'true' || value === 'false' || !isNaN(value)) {
-          return `: ${value}`;
-        }
-        return match;
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy dự án'
       });
+    }
 
-    const newFileContent = fileContent.replace(
-      /export const projects = \[[\s\S]*?\];/,
-      `export const projects = ${newProjectsString};`
+    // Update project
+    const updatedProject = await Project.findByIdAndUpdate(
+      project._id,
+      req.body,
+      { new: true, runValidators: true }
     );
 
-    // Write back to file
-    fs.writeFileSync(projectsFilePath, newFileContent, 'utf8');
-
-    return res.status(200).json({ 
-      success: true, 
-      message: 'Project updated successfully',
-      project: projects[projectIndex]
+    res.status(200).json({
+      success: true,
+      data: updatedProject,
+      message: 'Dự án đã được cập nhật thành công'
     });
-
   } catch (error) {
     console.error('Error updating project:', error);
-    return res.status(500).json({ 
-      error: 'Failed to update project',
-      details: error.message 
+    res.status(400).json({
+      success: false,
+      message: 'Lỗi khi cập nhật dự án',
+      error: error.message
     });
   }
 }
-

@@ -38,21 +38,11 @@ export default function ProjectsListDashboard({ projects: initialProjects, onEdi
     if (!project) return;
 
     try {
-      const response = await fetch(`/api/projects/delete?id=${project.id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Có lỗi xảy ra khi xóa dự án');
+      if (onDelete) {
+        await onDelete(project);
+        setProjects(projects.filter(p => p._id !== project._id));
+     
       }
-
-      setProjects(projects.filter(p => p.id !== project.id));
-      if (onDelete) onDelete(project.id);
-      
-      // Show success notification (có thể thêm toast notification)
-      setTimeout(() => {
-        alert('Xóa dự án thành công!');
-      }, 100);
     } catch (error) {
       alert(error.message);
     }

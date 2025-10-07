@@ -18,11 +18,11 @@ import {
   FaHeart,
   FaShare
 } from "react-icons/fa";
-import { getProjectBySlug, projects } from "../../data/projects";
+// import { getProjectBySlug, projects } from "../../data/projects";
 import NoiThatViewer from "./NoiThatViewer";
 import ContactForm from "../header/ContactForm";
 
-export default function ProjectDetailPage({ projectSlug }) {
+export default function ProjectDetailPage({ project }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -44,8 +44,7 @@ export default function ProjectDetailPage({ projectSlug }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isFormOpen, toggleForm]);
 
-  // Get project data from shared data file
-  const project = getProjectBySlug(projectSlug);
+  // Project data is now passed as prop from getServerSideProps
 
   // If no project found, show 404 or redirect
   if (!project) {
@@ -62,10 +61,8 @@ export default function ProjectDetailPage({ projectSlug }) {
     );
   }
 
-  // Get related projects from same category, excluding current project
-  const relatedProjects = projects
-    .filter(p => p.category === project.category && p.id !== project.id)
-    .slice(0, 3);
+  // Related projects will be passed as prop from getServerSideProps
+  const relatedProjects = project?.relatedProjects || [];
 
   const nextImage = () => {
     if (project.gallery && project.gallery.length > 0) {

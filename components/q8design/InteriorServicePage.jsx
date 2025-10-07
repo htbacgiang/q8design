@@ -116,7 +116,7 @@ export default function InteriorServicePage() {
     {
       name: "Hiện đại tối giản",
       description: "Đơn giản, thoáng đãng, tập trung vào công năng",
-      image: "/images/service-interior-2.jpg"
+      image: "/images/service-interior-2.webp"
     },
     {
       name: "Scandinavian",
@@ -159,7 +159,7 @@ export default function InteriorServicePage() {
       <section className="relative md:h-[70vh] h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/service-interior-2.jpg"
+            src="/images/service-interior-2.webp"
             alt="Thiết kế Nội thất Q8 Design"
             fill
             className="object-cover brightness-50"

@@ -112,18 +112,16 @@ export default function   ServicesSection() {
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   
-                  {/* Icon */}
-                  <div className="absolute top-6 left-6">
-                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                      <Icon className="text-2xl text-white" />
+                  {/* Icon and Title on same line */}
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Icon className="text-xl text-white" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white leading-tight">
+                        {service.title}
+                      </h3>
                     </div>
-                  </div>
-
-                  {/* Title on image */}
-                  <div className="absolute bottom-6 left-6">
-                    <h3 className="text-2xl font-bold text-white mb-2">
-                      {service.title}
-                    </h3>
                   </div>
                 </div>
 

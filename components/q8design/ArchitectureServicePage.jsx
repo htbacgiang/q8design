@@ -215,39 +215,6 @@ export default function ArchitectureServicePage() {
     }
   ];
 
-  // Lấy 3 dự án tiêu biểu từ database
-  const featuredProjects = [
-    {
-      image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop",
-      title: "Dự án Biệt thự FLC Sầm Sơn",
-      subtitle: "Biệt thự nghỉ dưỡng cao cấp",
-      location: "FLC Sầm Sơn, Thanh Hóa",
-      area: "350m²",
-      type: "Thiết kế và Thi công trọn gói",
-      slug: "biet-thu-flc-sam-son",
-      tags: ["Hiện đại", "Nghỉ dưỡng", "View biển"]
-    },
-    {
-      image: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759747379/q8desgin/bfwn4vi8kfobgdzx5bhw.png",
-      title: "Căn hộ Penthouse The K-Park",
-      subtitle: "Nâng tầm không gian sống hiện đại",
-      location: "The K-Park, Hà Nội",
-      area: "120m²",
-      type: "Thiết kế và Thi công nội thất trọn gói",
-      slug: "can-ho-penthouse-the-k-park",
-      tags: ["Tối giản", "Sang trọng", "Penthouse"]
-    },
-    {
-      image: "https://res.cloudinary.com/dwo0cghmc/image/upload/v1759469165/q8desgin/pqqjsqpmqm87aorfnhai.jpg",
-      title: "Nhà phố liền kề Times City",
-      subtitle: "Tối ưu không gian sống gia đình",
-      location: "Times City, Hà Nội",
-      area: "80m²",
-      type: "Cải tạo và Thiết kế nội thất",
-      slug: "nha-pho-lin-k-times-city",
-      tags: ["Hiện đại", "Ấm cúng", "Tối ưu"]
-    }
-  ];
 
   return (
     <div className="min-h-screen">
@@ -255,7 +222,7 @@ export default function ArchitectureServicePage() {
       <section className="relative md:h-[70vh] h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/service-architecture.jpg"
+            src="/images/service-architecture.webp"
             alt="Dịch vụ Thiết kế Kiến trúc: Kiến tạo Không gian Sống Đẳng cấp | Q8 Design"
             fill
             className="object-cover brightness-50"
@@ -628,91 +595,13 @@ export default function ArchitectureServicePage() {
         </div>
       </section>
 
-      {/* Featured Projects */}
-      <section className="py-12 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
-            
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">
-              Dự án tiêu biểu của Q8 Design
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredProjects.map((project, index) => (
-              <Link 
-                key={index} 
-                href={`/du-an/${project.slug}`}
-                className="group rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
-              >
-                <div className="relative h-64 overflow-hidden">
-                  <Image
-                    src={project.image}
-                    alt={project.title}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  {/* Tags overlay */}
-                  <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                    {project.tags.slice(0, 2).map((tag, idx) => (
-                      <span 
-                        key={idx}
-                        className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-bold text-gray-800"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="bg-white p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">
-                    {project.title}
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-3">{project.subtitle}</p>
-                  <div className="space-y-2">
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <svg className="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span>{project.location}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center text-gray-600">
-                        <svg className="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                        </svg>
-                        <span className="font-semibold">{project.area}</span>
-                      </div>
-                      <span className="text-orange-600 font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center">
-                        Xem chi tiết
-                        <FaArrowRight className="ml-1 text-xs" />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Link
-              href="/du-an"
-              className="inline-flex items-center px-8 py-4 border-2 border-orange-500 text-orange-600 font-bold rounded-full hover:bg-orange-500 hover:text-white transition-all duration-300 group"
-            >
-              Xem tất cả dự án
-              <FaArrowRight className="ml-3 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* VIII. Câu hỏi thường gặp */}
       <section className="py-8 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-6 mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Câu hỏi thường gặp về Dịch vụ Thiết kế Kiến trúc
               </h2>
             </div>

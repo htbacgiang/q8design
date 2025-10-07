@@ -509,7 +509,7 @@ const FullConstructionServicePage = () => {
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto space-y-6">
+          <div className="max-w-6xl mx-auto space-y-6">
             {faqs.map((faq, index) => {
               const Icon = faq.icon;
               return (
