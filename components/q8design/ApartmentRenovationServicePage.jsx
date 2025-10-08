@@ -149,7 +149,7 @@ export default function ApartmentRenovationServicePage() {
       <section className="relative md:h-[70vh] h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/service-renovation.jpg"
+            src="/images/service-renovation.webp"
             alt="Dịch vụ Cải tạo Nội thất Chung cư Chuyên nghiệp | Q8 Design"
             fill
             className="object-cover brightness-50"

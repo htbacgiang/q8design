@@ -24,59 +24,20 @@ const staticPages = [
   { url: '/tu-van', changefreq: 'weekly', priority: '0.8' },
   { url: '/dat-lich-tu-van', changefreq: 'weekly', priority: '0.7' },
   { url: '/tuyen-dung', changefreq: 'monthly', priority: '0.6' },
-  
-  // Trang đăng ký/đăng nhập
-  { url: '/dang-ky', changefreq: 'monthly', priority: '0.6' },
-  { url: '/dang-nhap', changefreq: 'monthly', priority: '0.6' },
-  
+
   // Các trang chính sách và pháp lý
   { url: '/chinh-sach-bao-mat', changefreq: 'yearly', priority: '0.3' },
   { url: '/bao-mat', changefreq: 'yearly', priority: '0.3' },
   { url: '/dieu-khoan-su-dung', changefreq: 'yearly', priority: '0.3' },
   
-  // Trang auth
-  { url: '/auth/quen-mat-khau', changefreq: 'monthly', priority: '0.4' },
-  { url: '/auth/dat-lai-mat-khau', changefreq: 'monthly', priority: '0.4' },
-  
-  // Trang cài đặt và quản lý
-  { url: '/cai-dat', changefreq: 'monthly', priority: '0.5' },
-  { url: '/unsubscribe', changefreq: 'yearly', priority: '0.2' },
-  
-  // Trang 404 và activate
-  { url: '/activate', changefreq: 'yearly', priority: '0.1' },
-  
-  // Trang dashboard public (nếu có)
-  { url: '/dashboard', changefreq: 'monthly', priority: '0.5' },
-  
-  // Trang sản phẩm chính
-  { url: '/san-pham', changefreq: 'weekly', priority: '0.8' },
-  
-  // Trang khóa học chính
-  { url: '/khoa-hoc', changefreq: 'weekly', priority: '0.8' },
 ];
 
 // Danh sách các slug dịch vụ tĩnh (từ servicesData)
 const servicesSlugs = [
-  'thiet-ke-kien-truc-noi-that',
-  'thi-cong-xay-dung',
-  'cam-ket-chat-luong',
-  'bao-hanh-bao-tri',
-  'thiet-ke-web',
-  'thiet-ke-logo',
-  'marketing-online',
-  'seo-website',
-  'quang-cao-google',
-  'quang-cao-facebook',
-  'content-marketing',
-  'social-media-marketing',
-  'thiet-ke-graphic',
-  'thiet-ke-banner',
-  'thiet-ke-catalog',
-  'thiet-ke-name-card',
-  'thiet-ke-brochure',
-  'thiet-ke-poster',
-  'thiet-ke-menu',
-  'thiet-ke-billboard'
+    'thiet-ke-kien-truc',  
+    'thiet-ke-noi-that',
+    'thi-cong-tron-goi',
+    'cai-tao-noi-that-chung-cu',
 ];
 
 // Hàm encode URL an toàn
@@ -157,49 +118,20 @@ const getCoursesForSitemap = async () => {
   }
 };
 
-// Hàm lấy các slug dự án từ data tĩnh
-const getProjectSlugsForSitemap = () => {
+// Hàm lấy dữ liệu dự án từ database
+const getProjectsForSitemap = async () => {
   try {
-    // Danh sách slug dự án cố định dựa trên data thực tế
-    const projectSlugs = [
-      "biet-thu-flc-sam-son",
-      "anh-minh-the-k-park", 
-      "nha-pho-anh-chung-thanh-tri",
-      "chi-van-tay-ho",
-      "thang-long-number-1",
-      "nha-pho-anh-dat-ung-hoa",
-      "anh-do-gia-lam",
-      "chi-ha-cc-newskyline-van-quan",
-      "chi-linh-vin-smart-city",
-      "thiet-ke-nha-pho-anh-loi-linh-dam",
-      "thiet-ke-nha-pho-chi-bich",
-      "nha-pho-3-tang-hien-dai",
-      "biet-thu-sang-trong",
-      "can-ho-chung-cu-cao-cap",
-      "nha-hang-khach-san",
-      "van-phong-cong-ty",
-      "showroom-trien-lam",
-      "nha-xuong-san-xuat",
-      "biet-thu-venice",
-      "nha-pho-4-tang-sang-trong",
-      "can-ho-penthouse",
-      "nha-hang-sushi",
-      "khach-san-5-sao",
-      "van-phong-startup",
-      "showroom-o-to",
-      "nha-xuong-cong-nghiep",
-      "biet-thu-phap",
-      "nha-pho-co-dien",
-      "can-ho-studio",
-      "nha-hang-bbq"
-    ];
+    await db.connectDb();
+    const Project = require('../../../models/Project');
+    const projects = await Project.find({ status: 'active' }, 'slug updatedAt createdAt').lean();
+    console.log(`Found ${projects.length} active projects in database`);
     
-    return projectSlugs.map(slug => ({
-      slug,
-      lastmod: new Date().toISOString()
+    return projects.map(project => ({
+      slug: project.slug,
+      lastmod: project.updatedAt ? new Date(project.updatedAt).toISOString() : new Date().toISOString()
     }));
   } catch (error) {
-    console.error('Lỗi khi lấy slug dự án:', error);
+    console.error('Lỗi khi lấy dự án từ database:', error);
     return [];
   }
 };
@@ -218,7 +150,7 @@ const handler = async (req, res) => {
       getPostsForSitemap(),
       getProductsForSitemap(),
       getCoursesForSitemap(),
-      Promise.resolve(getProjectSlugsForSitemap()) // Không cần await vì là sync function
+      getProjectsForSitemap() // Lấy dự án từ database
     ]);
 
     // Tạo sitemap content
