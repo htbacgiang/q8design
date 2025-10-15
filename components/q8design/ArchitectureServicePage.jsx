@@ -56,7 +56,7 @@ export default function ArchitectureServicePage() {
         "Không gian riêng tư, sang trọng",
         "Vẻ đẹp trường tồn theo thời gian"
       ],
-      image: "/images/thiet-ke-biet-thu-cao-cap-q8design.webp"
+      image: "/images/thiet-ke-biet-thu-cao-cap-q8design.jpg"
     },
     {
       icon: FaStore,

@@ -293,7 +293,7 @@ export default function Footer() {
           <div className="container mx-auto px-4">
             <div className="text-center">
               <p className="text-gray-500 text-base ">
-                Q8 Design - Thương hiệu của Công ty TNHH Q8 Design
+                Q8 Design - Công ty cổ phần  Q8 Việt Nam
               </p>
             </div>
           </div>

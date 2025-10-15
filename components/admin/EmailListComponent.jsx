@@ -8,18 +8,35 @@ const EmailListComponent = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [stats, setStats] = useState({
-    total: 0
+    total: 0,
+    today: 0,
+    thisWeek: 0
   });
 
   useEffect(() => {
     fetchSubscriptions();
     fetchStats();
-  }, [currentPage, searchTerm]);
+  }, [currentPage]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchTerm !== '') {
+        setSearchLoading(true);
+        fetchSubscriptions();
+      } else {
+        fetchSubscriptions();
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
 
   const fetchSubscriptions = async () => {
     try {
       setLoading(true);
+      setSearchLoading(false);
       const params = new URLSearchParams({
         page: currentPage,
         limit: 10,
@@ -27,30 +44,43 @@ const EmailListComponent = () => {
       });
 
       const response = await fetch(`/api/subscription?${params}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
 
       if (data.success) {
         setSubscriptions(data.data);
-        setTotalPages(data.pagination.total);
+        setTotalPages(data.pagination.totalPages);
         setTotalItems(data.pagination.totalItems);
       } else {
-        toast.error('Có lỗi xảy ra khi tải danh sách');
+        toast.error(data.message || 'Có lỗi xảy ra khi tải danh sách');
       }
     } catch (error) {
       console.error('Error fetching subscriptions:', error);
       toast.error('Có lỗi xảy ra khi tải danh sách');
     } finally {
       setLoading(false);
+      setSearchLoading(false);
     }
   };
 
   const fetchStats = async () => {
     try {
       const response = await fetch('/api/subscription/stats');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       
       if (data.success) {
         setStats(data.data);
+      } else {
+        console.error('Error fetching stats:', data.message);
       }
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -60,16 +90,21 @@ const EmailListComponent = () => {
   const handleExport = async () => {
     try {
       const response = await fetch('/api/subscription/export');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `subscriptions-${new Date().toISOString().split('T')[0]}.csv`;
+      a.download = `q8-khach-hang-${new Date().toISOString().split('T')[0]}.csv`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success('Xuất file thành công');
+      toast.success('Xuất danh sách khách hàng thành công');
     } catch (error) {
       console.error('Error exporting:', error);
       toast.error('Có lỗi xảy ra khi xuất file');
@@ -90,10 +125,10 @@ const EmailListComponent = () => {
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          Quản lý Đăng ký Khóa học
+          Quản lý Khách hàng Q8 Design
         </h1>
         <p className="text-gray-600">
-          Quản lý danh sách đăng ký khóa học và thông tin học viên
+          Quản lý danh sách khách hàng quan tâm đến dịch vụ thiết kế nội thất
         </p>
       </div>
 
@@ -107,7 +142,7 @@ const EmailListComponent = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Tổng đăng ký</p>
+              <p className="text-sm font-medium text-gray-600">Tổng khách hàng</p>
               <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
             </div>
           </div>
@@ -121,8 +156,8 @@ const EmailListComponent = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Đăng ký hôm nay</p>
-              <p className="text-2xl font-bold text-gray-900">0</p>
+              <p className="text-sm font-medium text-gray-600">Khách hàng hôm nay</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.today}</p>
             </div>
           </div>
         </div>
@@ -135,8 +170,8 @@ const EmailListComponent = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Đăng ký tuần này</p>
-              <p className="text-2xl font-bold text-gray-900">0</p>
+              <p className="text-sm font-medium text-gray-600">Khách hàng tuần này</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.thisWeek}</p>
             </div>
           </div>
         </div>
@@ -146,19 +181,26 @@ const EmailListComponent = () => {
       <div className="bg-white p-6 rounded-lg shadow mb-6">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex flex-col md:flex-row gap-4 flex-1">
-            <input
-              type="text"
-              placeholder="Tìm kiếm theo tên, email, số điện thoại..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Tìm kiếm khách hàng theo tên, email, số điện thoại..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+              />
+              {searchLoading && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                </div>
+              )}
+            </div>
           </div>
           <button
             onClick={handleExport}
             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-200"
           >
-            Xuất Excel
+            Xuất danh sách khách hàng
           </button>
         </div>
       </div>
@@ -176,10 +218,10 @@ const EmailListComponent = () => {
                   Liên hệ
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Khóa học quan tâm
+                  Dịch vụ quan tâm
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Mục đích học
+                  Nhu cầu thiết kế
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Ngày đăng ký
@@ -208,9 +250,7 @@ const EmailListComponent = () => {
                         <div className="font-medium text-gray-900">
                           {subscription.name || 'Chưa cung cấp'}
                         </div>
-                        <div className="text-gray-500">
-                          Tuổi: {subscription.age || 'N/A'}
-                        </div>
+                       
                       </div>
                     </td>
                     
@@ -226,7 +266,7 @@ const EmailListComponent = () => {
                       </div>
                     </td>
                     
-                    {/* Khóa học quan tâm */}
+                    {/* Dịch vụ quan tâm */}
                     <td className="px-4 py-4">
                       <div className="text-sm">
                         {subscription.courseName ? (
@@ -235,13 +275,13 @@ const EmailListComponent = () => {
                           </div>
                         ) : (
                           <div className="text-gray-500">
-                            Đăng ký chung
+                            Thiết kế nội thất chung
                           </div>
                         )}
                       </div>
                     </td>
                     
-                    {/* Mục đích học */}
+                    {/* Nhu cầu thiết kế */}
                     <td className="px-4 py-4">
                       <div className="text-sm text-gray-900 max-w-xs">
                         {subscription.purpose ? (

@@ -112,13 +112,16 @@ export default function   ServicesSection() {
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   
+                  {/* Overlay for better text visibility */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
+                  
                   {/* Icon and Title on same line */}
                   <div className="absolute bottom-6 left-6 right-6">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
                         <Icon className="text-xl text-white" />
                       </div>
-                      <h3 className="text-xl font-bold text-white leading-tight">
+                      <h3 className="text-xl font-bold text-white leading-tight drop-shadow-lg">
                         {service.title}
                       </h3>
                     </div>
@@ -156,16 +159,16 @@ export default function   ServicesSection() {
               Đội ngũ chuyên gia của Q8 Design luôn sẵn sàng tư vấn miễn phí 
               để tìm ra giải pháp phù hợp nhất cho không gian của bạn.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/dich-vu" className="inline-flex items-center px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-colors duration-300">
-                Xem tất cả dịch vụ
-                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex flex-row gap-4 justify-center">
+              <Link href="/dich-vu" className="inline-flex items-center px-4 sm:px-8 py-3 sm:py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-colors duration-300 text-sm sm:text-base">
+                Tất cả dịch vụ
+                <svg className="ml-2 w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                 </svg>
               </Link>
               <button 
                 onClick={() => setShowContactForm(true)}
-                className="inline-flex items-center px-8 py-4 border-2 border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white font-bold rounded-full transition-all duration-300"
+                className="inline-flex items-center px-4 sm:px-8 py-3 sm:py-4 border-2 border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white font-bold rounded-full transition-all duration-300 text-sm sm:text-base"
               >
                 Tư vấn miễn phí
               </button>

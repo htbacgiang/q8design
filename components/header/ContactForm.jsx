@@ -7,6 +7,7 @@ export default function ContactForm() {
     phone: "",
     email: "",
     message: "",
+    service: "thiet-ke-noi-that", // Default service for Q8 Design
   });
   const [status, setStatus] = useState("");
   const [errors, setErrors] = useState({});
@@ -17,8 +18,8 @@ export default function ContactForm() {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Vui lòng nhập họ và tên";
     if (!formData.phone.trim()) newErrors.phone = "Vui lòng nhập số điện thoại";
-    else if (!/^\d{10,11}$/.test(formData.phone))
-      newErrors.phone = "Số điện thoại phải có 10-11 chữ số";
+    else if (!/^(0|\+84)[3|5|7|8|9][0-9]{8}$/.test(formData.phone))
+      newErrors.phone = "Số điện thoại không hợp lệ (VD: 0987654321)";
     if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       newErrors.email = "Email không hợp lệ";
     if (!formData.message.trim()) newErrors.message = "Vui lòng nhập yêu cầu tư vấn";
@@ -80,9 +81,9 @@ export default function ContactForm() {
       const result = await response.json();
 
       if (response.ok) {
-        setStatus("Đăng ký tư vấn thành công!");
-        setFormData({ name: "", phone: "", email: "", message: "" });
-        setTimeout(() => setStatus(""), 3000);
+        setStatus("Đăng ký tư vấn thành công! Chúng tôi sẽ liên hệ lại sớm nhất.");
+        setFormData({ name: "", phone: "", email: "", message: "", service: "thiet-ke-noi-that" });
+        setTimeout(() => setStatus(""), 5000);
       } else {
         throw new Error(result.message || "Không thể gửi yêu cầu");
       }
@@ -181,17 +182,22 @@ export default function ContactForm() {
                   )}
                 </div>
                 <div>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    placeholder="Yêu cầu tư vấn của bạn (ví dụ: thiết kế nhà phố, nội thất, diện tích, ngân sách...)"
-                    aria-describedby={errors.message ? "message-error" : undefined}
-                    className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 h-32 resize-none ${
-                      errors.message ? "border-red-500" : "border-gray-300"
-                    }`}
-                  />
+                  <div className="relative">
+                    <textarea
+                      id="message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      placeholder="Mô tả chi tiết dự án của bạn (loại nhà, diện tích, phong cách, ngân sách dự kiến...)"
+                      aria-describedby={errors.message ? "message-error" : undefined}
+                      className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 h-32 resize-none ${
+                        errors.message ? "border-red-500" : "border-gray-300"
+                      }`}
+                    />
+                    <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+                      {formData.message.length}/500
+                    </div>
+                  </div>
                   {errors.message && (
                     <p id="message-error" className="text-red-500 text-sm mt-1">
                       {errors.message}
@@ -204,7 +210,16 @@ export default function ContactForm() {
                   className="w-full bg-orange-500 text-white font-bold py-3 rounded-full hover:bg-orange-600 transition-colors disabled:bg-gray-300 flex items-center justify-center gap-2"
                   aria-disabled={status === "Đang gửi..."}
                 >
-                  Đăng ký tư vấn <span>→</span>
+                  {status === "Đang gửi..." ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Đang gửi...
+                    </>
+                  ) : (
+                    <>
+                      Đăng ký tư vấn <span>→</span>
+                    </>
+                  )}
                 </button>
               </form>
               {status && (
