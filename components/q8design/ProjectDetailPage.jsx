@@ -474,7 +474,7 @@ export default function ProjectDetailPage({ project }) {
                       </Link>
                     </h3>
                     <p className="text-gray-600 text-sm">
-                      {relatedProject.category} • {relatedProject.area}
+                     Diện tích: {relatedProject.area}
                     </p>
                   </div>
                 </div>

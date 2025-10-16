@@ -1,94 +1,8 @@
 import Head from "next/head";
 import DefaultLayout from "../../components/layout/DefaultLayout";
 import ProjectDetailPage from "../../components/q8design/ProjectDetailPage";
-import { useRouter } from "next/router";
 
-export default function ProjectDetail({ meta, project }) {
-  const router = useRouter();
-  const { slug } = router.query;
-
-  // Use project data from props (fetched from API)
-  const projectData = project;
-  
-  // JSON-LD Schema.org cho chi tiết dự án
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CreativeWork",
-    "name": projectData?.title || `Dự án ${slug}`,
-    "description": projectData?.description || `Chi tiết dự án thiết kế ${slug} của Q8 Design`,
-    "url": `https://q8design.vn/du-an/${slug}`,
-    "image": projectData?.gallery || [projectData?.mainImage || projectData?.image],
-    "creator": {
-      "@type": "Organization",
-      "name": "Q8 Design",
-      "url": "https://q8design.vn",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://q8design.vn/logo-q8.png",
-        "width": "200",
-        "height": "60"
-      }
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Q8 Design",
-      "url": "https://q8design.vn"
-    },
-    "dateCreated": projectData?.year || "2024",
-    "datePublished": projectData?.year || "2024",
-    "genre": "Architectural Design",
-    "keywords": projectData?.tags?.join(', ') || "thiết kế kiến trúc, thiết kế nội thất, Q8 Design",
-    "inLanguage": "vi-VN",
-    "breadcrumb": {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Trang chủ",
-          "item": "https://q8design.vn/"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Dự án",
-          "item": "https://q8design.vn/du-an"
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": projectData?.title || `Dự án ${slug}`,
-          "item": `https://q8design.vn/du-an/${slug}`
-        }
-      ]
-    },
-    "workExample": {
-      "@type": "VisualArtwork",
-      "name": projectData?.title || `Dự án ${slug}`,
-      "artMedium": "Architecture and Interior Design",
-      "creator": {
-        "@type": "Organization",
-        "name": "Q8 Design"
-      },
-      "image": projectData?.mainImage || projectData?.image,
-      "description": projectData?.description || `Chi tiết dự án thiết kế ${slug} của Q8 Design`
-    },
-    "about": {
-      "@type": "Thing",
-      "name": "Thiết kế kiến trúc và nội thất",
-      "description": "Dịch vụ thiết kế kiến trúc, nội thất, thi công trọn gói và cải tạo không gian"
-    },
-    "isPartOf": {
-      "@type": "WebSite",
-      "name": "Q8 Design",
-      "url": "https://q8design.vn"
-    },
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "url": `https://q8design.vn/du-an/${slug}`
-    }
-  };
-
+export default function ProjectDetail({ meta, project, jsonLd }) {
   return (
     <DefaultLayout 
       title={meta?.title}
@@ -97,84 +11,125 @@ export default function ProjectDetail({ meta, project }) {
       meta={meta}
     >
       <Head>
-        {/* JSON-LD Schema.org cho chi tiết dự án */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </Head>
-
-      <h1 className="visually-hidden">
-        {project?.title || `Dự án ${slug} - Q8 Design`}
-      </h1>
-      
+      <h1 className="visually-hidden">{project?.title}</h1>
       <ProjectDetailPage project={project} />
     </DefaultLayout>
   );
 }
 
-export async function getServerSideProps({ params }) {
+// Helper functions
+const connectDB = async (mongoose) => {
+  if (mongoose.connection.readyState !== 1) {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+  }
+};
+
+const createMeta = (project, baseUrl, slug) => ({
+  title: `${project.title} - Q8 Design`,
+  description: project.description || `Chi tiết dự án ${project.title} của Q8 Design`,
+  keywords: `${project.title}, ${project.tags?.join(', ') || ''}, thiết kế kiến trúc, Q8 Design`,
+  robots: "index, follow",
+  author: "Q8 Design",
+  canonical: `${baseUrl}/du-an/${slug}`,
+  og: {
+    title: `${project.title} - Q8 Design`,
+    description: project.description || `Chi tiết dự án ${project.title}`,
+    type: "article",
+    image: project.mainImage || project.image ? `${baseUrl}${project.mainImage || project.image}` : `${baseUrl}/logo-q8.png`,
+    imageWidth: "1200",
+    imageHeight: "630",
+    url: `${baseUrl}/du-an/${slug}`,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${project.title} - Q8 Design`,
+    description: project.description || `Chi tiết dự án ${project.title}`,
+    image: project.mainImage || project.image ? `${baseUrl}${project.mainImage || project.image}` : `${baseUrl}/logo-q8.png`,
+  },
+});
+
+const createJsonLd = (project, baseUrl, slug) => ({
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "name": project.title,
+  "description": project.description || `Chi tiết dự án ${project.title}`,
+  "url": `${baseUrl}/du-an/${slug}`,
+  "image": project.mainImage || project.image || `${baseUrl}/logo-q8.png`,
+  "creator": {
+    "@type": "Organization",
+    "name": "Q8 Design",
+    "url": baseUrl,
+  },
+  "datePublished": project.year || "2024",
+  "keywords": project.tags?.join(', ') || "thiết kế kiến trúc, Q8 Design",
+  "inLanguage": "vi-VN",
+});
+
+const serializeProject = (project, relatedProjects) => ({
+  ...project,
+  _id: project._id.toString(),
+  createdAt: project.createdAt?.toISOString() || null,
+  updatedAt: project.updatedAt?.toISOString() || null,
+  relatedProjects: relatedProjects.map(r => ({
+    ...r,
+    _id: r._id.toString(),
+    createdAt: r.createdAt?.toISOString() || null,
+    updatedAt: r.updatedAt?.toISOString() || null,
+  }))
+});
+
+export async function getServerSideProps({ params, req }) {
   const { slug } = params;
+  const protocol = req.headers['x-forwarded-proto'] || 'http';
+  const baseUrl = `${protocol}://${req.headers.host}`;
   
   try {
-    // Fetch project from API
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/projects/${slug}`);
+    const mongoose = require('mongoose');
+    const Project = require('../../models/Project');
     
-    if (!response.ok) {
-      return {
-        notFound: true,
-      };
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI not defined');
     }
     
-    const data = await response.json();
-    const project = data.data?.project;
-    const relatedProjects = data.data?.relatedProjects || [];
+    await connectDB(mongoose);
     
-    if (!project) {
-      return {
-        notFound: true,
-      };
+    const project = await Project.findOne({ 
+      slug, 
+      status: 'active' 
+    }).select('-__v').lean();
+    
+    if (!project || !project.title) {
+      return { notFound: true };
     }
+    
+    const relatedProjects = await Project.find({
+      category: project.category,
+      _id: { $ne: project._id },
+      status: 'active'
+    })
+    .select('title slug image location area')
+    .limit(3)
+    .sort({ createdAt: -1 })
+    .lean()
+    .catch(() => []);
 
-  const meta = {
-    title: `${project.title} - Q8 Design`,
-    description: project.description || `Chi tiết dự án ${project.title} của Q8 Design - Khám phá quy trình thiết kế, ý tưởng sáng tạo và kết quả hoàn thiện đẳng cấp.`,
-    keywords: `${project.title}, ${project.tags?.join(', ')}, thiết kế kiến trúc, thiết kế nội thất, Q8 Design`,
-    robots: "index, follow",
-    author: "Q8 Design",
-    canonical: `https://q8design.vn/du-an/${slug}`,
-    og: {
-      title: `${project.title} - Q8 Design`,
-      description: project.description || `Chi tiết dự án ${project.title} của Q8 Design`,
-      type: "article",
-      image: `https://q8design.vn${project.mainImage || project.image}`,
-      imageWidth: "1200",
-      imageHeight: "630",
-      url: `https://q8design.vn/du-an/${slug}`,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${project.title} - Q8 Design`,
-      description: project.description || `Chi tiết dự án ${project.title} của Q8 Design`,
-      image: `https://q8design.vn${project.mainImage || project.image}`,
-    },
-  };
-
-  return {
-    props: {
-      meta,
-      project: {
-        ...project,
-        relatedProjects
-      },
-    },
-  };
-
-  } catch (error) {
-    console.error('Error fetching project:', error);
     return {
-      notFound: true,
+      props: {
+        meta: createMeta(project, baseUrl, slug),
+        project: serializeProject(project, relatedProjects),
+        jsonLd: createJsonLd(project, baseUrl, slug),
+      },
     };
+  } catch (error) {
+    console.error('Error fetching project:', error.message);
+    return { notFound: true };
   }
 }

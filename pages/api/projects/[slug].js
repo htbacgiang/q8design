@@ -5,12 +5,23 @@ export default async function handler(req, res) {
   const { method } = req;
   const { slug } = req.query;
 
-  await db.connectDb();
+  try {
+    await db.connectDb();
+    console.log('Database connected successfully');
+  } catch (error) {
+    console.error('Database connection error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi kết nối database',
+      error: error.message
+    });
+  }
 
   switch (method) {
     case 'GET':
       try {
         console.log('Looking for project with slug:', slug);
+        console.log('Database connection status:', db.connection?.isConnected);
         
         const project = await Project.findOne({ 
           slug: slug,
@@ -20,12 +31,29 @@ export default async function handler(req, res) {
         console.log('Found project:', project ? 'Yes' : 'No');
         if (project) {
           console.log('Project title:', project.title);
+          console.log('Project status:', project.status);
+        } else {
+          console.log('No project found with slug:', slug);
+          // Let's also check if there are any projects at all
+          const totalProjects = await Project.countDocuments();
+          console.log('Total projects in database:', totalProjects);
+          
+          // Check if there are any projects with different status
+          const inactiveProjects = await Project.countDocuments({ status: 'inactive' });
+          const draftProjects = await Project.countDocuments({ status: 'draft' });
+          console.log('Inactive projects:', inactiveProjects);
+          console.log('Draft projects:', draftProjects);
         }
 
         if (!project) {
           return res.status(404).json({
             success: false,
-            message: 'Không tìm thấy dự án'
+            message: 'Không tìm thấy dự án',
+            debug: {
+              slug,
+              totalProjects: await Project.countDocuments(),
+              activeProjects: await Project.countDocuments({ status: 'active' })
+            }
           });
         }
 
